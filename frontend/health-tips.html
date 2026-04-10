@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Health Tips & Articles - MediCare Plus</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .article-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .article-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .read-more {
+            color: #0a6ebd;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .article-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .article-modal-content {
+            background: #fff;
+            max-width: 700px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 14px;
+            position: relative;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.25s ease;
+        }
+
+        .article-modal-content h3 {
+            color: #0a6ebd;
+            margin-bottom: 15px;
+        }
+
+        .article-modal-content p {
+            line-height: 1.7;
+            color: #444;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: #000;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="navbar-container"></div>
+
+    <div class="page-container">
+        <h2 class="section-title">Health Tips & Articles</h2>
+
+        <div class="article-grid">
+
+            <div class="article-card">
+                <img src="assets/article1.jpg" alt="Healthy lifestyle">
+                <div class="article-content">
+                    <h3>5 Daily Habits for a Healthier Lifestyle</h3>
+                    <p>Simple habits can improve your health.</p>
+                    <span class="read-more" onclick="openModal('habitModal')">Read More</span>
+                </div>
+            </div>
+
+            <div class="article-card">
+                <img src="assets/article2.jpg" alt="Heart health">
+                <div class="article-content">
+                    <h3>How to Take Care of Your Heart</h3>
+                    <p>Protect your heart with simple steps.</p>
+                    <span class="read-more" onclick="openModal('heartModal')">Read More</span>
+                </div>
+            </div>
+
+            <div class="article-card">
+                <img src="assets/article3.jpg" alt="Child health">
+                <div class="article-content">
+                    <h3>Tips for Keeping Children Healthy</h3>
+                    <p>Ensure children grow healthy and strong.</p>
+                    <span class="read-more" onclick="openModal('childModal')">Read More</span>
+                </div>
+            </div>
+
+            <div class="article-card">
+                <img src="assets/article4.jpg" alt="Mental wellness">
+                <div class="article-content">
+                    <h3>Simple Ways to Improve Mental Wellness</h3>
+                    <p>Focus on your mental health today.</p>
+                    <span class="read-more" onclick="openModal('mentalHealthModal')">Read More</span>
+                </div>
+            </div>
+
+            <div class="article-card">
+                <img src="assets/article5.jpg" alt="Preventive healthcare">
+                <div class="article-content">
+                    <h3>Why Preventive Healthcare Matters</h3>
+                    <p>Regular health checkups can save lifes!</p>
+                    <span class="read-more" onclick="openModal('preventiveHealthModal')">Read More</span>
+                </div>
+            </div>
+
+            <div class="article-card">
+                <img src="assets/article6.jpg" alt="Nutrition">
+                <div class="article-content">
+                    <h3>Nutrition Tips for a Balanced Diet</h3>
+                    <p>Healthy foods, Healthy life!</p>
+
+                    <span class="read-more" onclick="openModal('balanceDietModal')">Read More</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <div id="habitModal" class="article-modal">
+        <div class="article-modal-content">
+            <span class="close-modal" onclick="closeModal('habitModal')">&times;</span>
+            <h3>5 Daily Habits for a Healthier Lifestyle</h3>
+            <ul>
+                <li>Drink enough water throughout the day to stay hydrated</li>
+                <li>Eat balanced and nutritious meals</li>
+                <li>Stay physically active with regular exercise</li>
+                <li>Maintain a consistent and adequate sleep schedule</li>
+                <li>Manage stress through relaxation and healthy coping techniques</li>
+            </ul>
+
+            <br>
+
+            <p>Maintaining a healthier lifestyle begins with simple yet powerful daily habits such as staying hydrated
+                and eating balanced meals. Drinking enough water supports essential body functions, while nutritious
+                foods provide the energy and nutrients needed for overall well-being. In addition, staying physically
+                active through regular exercise helps strengthen the body, improve cardiovascular health, and boost
+                mood, making it easier to stay energized and productive throughout the day.</p>
+
+            <br>
+
+            <p>Equally important is maintaining a consistent sleep schedule and managing stress effectively. Quality
+                sleep allows the body and mind to rest and recover, improving focus, memory, and emotional balance. At
+                the same time, practicing stress management techniques like meditation, deep breathing, or engaging in
+                relaxing activities helps maintain mental well-being. Together, these habits create a strong foundation
+                for a healthier, more balanced lifestyle.</p>
+
+        </div>
+    </div>
+
+    <div id="heartModal" class="article-modal">
+        <div class="article-modal-content">
+            <span class="close-modal" onclick="closeModal('heartModal')">&times;</span>
+            <h3>How to Take Care of Your Heart</h3>
+            <p>Taking care of your heart is essential for maintaining overall health and preventing serious conditions
+                such as heart disease. One of the most effective ways to support heart health is by adopting a balanced
+                diet rich in fruits, vegetables, whole grains, and lean proteins. Reducing the intake of processed
+                foods, excess salt, and unhealthy fats can help maintain healthy cholesterol levels and blood pressure,
+                both of which are crucial for a strong and well-functioning heart.</p>
+            <br>
+            <p>Regular physical activity is another key factor in keeping your heart healthy. Engaging in activities
+                such as walking, jogging, cycling, or even light exercises for at least 30 minutes a day can improve
+                circulation, strengthen the heart muscle, and help manage weight. Along with exercise, avoiding harmful
+                habits like smoking and limiting alcohol consumption can significantly reduce the risk of cardiovascular
+                problems and improve overall well-being.</p>
+            <br>
+            <p>In addition to diet and exercise, managing stress and getting enough quality sleep are vital for heart
+                health. Chronic stress can negatively impact blood pressure and lead to unhealthy coping behaviors,
+                while proper sleep allows the body to recover and maintain normal bodily functions. Regular health
+                checkups also play an important role in monitoring heart health and detecting any potential issues
+                early, helping you take timely action and maintain a healthier lifestyle.</p>
+
+        </div>
+    </div>
+
+    <div id="childModal" class="article-modal">
+        <div class="article-modal-content">
+            <span class="close-modal" onclick="closeModal('childModal')">&times;</span>
+            <h3>Tips for Keeping Children Healthy</h3>
+            <p>Raising healthy children goes far beyond simply ensuring they eat and sleep it involves nurturing their
+                physical, mental, and emotional well-being through consistent, thoughtful habits. A strong foundation
+                begins with providing nutritious, well-balanced meals that include essential vitamins, minerals,
+                proteins, and healthy fats. These nutrients fuel growth, strengthen the immune system, and support brain
+                development, helping children stay active and focused throughout the day.</p>
+
+            <p>Equally important is ensuring that children get enough quality sleep. Sleep plays a vital role in growth,
+                memory consolidation, and emotional regulation. Establishing a consistent bedtime routine can
+                significantly improve sleep quality and help children wake up refreshed and ready to learn.</p>
+
+            <p>Physical activity is another cornerstone of a healthy lifestyle. Encouraging children to engage in
+                regular exercise whether through sports, outdoor play, or simple activities like walking or cycling
+                helps build strong muscles and bones, improves cardiovascular health, and reduces the risk of obesity.
+                Active play also contributes to better mood and social skills.</p>
+
+            <br>
+
+            <p>Preventive healthcare is just as critical. Keeping up with vaccinations protects children from serious
+                diseases, while regular health checkups allow early detection of potential issues and ensure proper
+                growth and development. These routine visits also provide an opportunity for parents to seek guidance on
+                nutrition, behavior, and overall well-being.</p>
+
+            <br>
+
+            <p>In addition to physical health, teaching children proper hygiene habits such as regular handwashing,
+                brushing teeth, and maintaining cleanliness helps prevent infections and fosters lifelong healthy
+                practices. Parents play a key role in modeling and reinforcing these behaviors.</p>
+
+            <br>
+
+            <p>Finally, managing screen time is essential in today's digital age. Excessive exposure to screens can
+                impact sleep, attention span, and physical activity levels. Setting healthy limits encourages children
+                to explore other enriching activities like reading, creative play, and social interaction.</p>
+
+            <br>
+
+            <p>By focusing on these key areas nutrition, sleep, physical activity, preventive care, hygiene, and
+                balanced screen use parents can create a supportive environment that promotes holistic development and
+                sets the stage for a lifetime of good health.</p>
+
+        </div>
+    </div>
+
+    <div id="mentalHealthModal" class="article-modal">
+        <div class="article-modal-content">
+            <span class="close-modal" onclick="closeModal('mentalHealthModal')">&times;</span>
+            <h3>Simple Ways to Improve Mental Wellness</h3>
+            <p>In today's fast-paced world, taking care of your mental and emotional well-being is just as important as
+                maintaining physical health. One of the most effective ways to achieve balance is by incorporating
+                relaxation techniques into your daily routine. Practices such as deep breathing exercises, meditation,
+                and gentle stretching can help calm the mind, reduce stress levels and improve overall focus. Even
+                setting aside just 10-15 minutes a day for these activities can make a noticeable difference in how you
+                feel.</p>
+
+            <br>
+
+            <p>Equally important is maintaining strong social connections. Spending time with family, friends, or even
+                engaging in community activities can provide emotional support and a sense of belonging. Meaningful
+                conversations and shared experiences not only uplift your mood but also help you cope better with life's
+                challenges.</p>
+
+            <br>
+
+            <p>In addition to relaxation and social interaction, it is essential to prioritize rest and mindfulness.
+                Ensure that you get enough quality sleep each night, as it plays a vital role in both mental clarity and
+                physical recovery. Mindfulness practices, such as being present in the moment and appreciating simple
+                daily experiences, can help reduce anxiety and improve emotional resilience.</p>
+
+            <br>
+
+            <p>By consciously setting aside time each day for relaxation, connection and rest, you can create a
+                healthier, more balanced lifestyle that supports long-term well-being.</p>
+
+            <br>
+
+        </div>
+    </div>
+
+    <div id="preventiveHealthModal" class="article-modal">
+        <div class="article-modal-content">
+            <span class="close-modal" onclick="closeModal('preventiveHealthModal')">&times;</span>
+            <h3>Why Preventive Healthcare Matters</h3>
+            <p>In today's fast-paced world, taking care of your mental and emotional well-being is just as important as
+                maintaining physical health. One of the most effective ways to achieve balance is by incorporating
+                relaxation techniques into your daily routine. Practices such as deep breathing exercises, meditation,
+                and gentle stretching can help calm the mind, reduce stress levels and improve overall focus. Even
+                setting aside just 10-15 minutes a day for these activities can make a noticeable difference in how you
+                feel.</p>
+
+            <br>
+
+            <p>Equally important is maintaining strong social connections. Spending time with family, friends, or even
+                engaging in community activities can provide emotional support and a sense of belonging. Meaningful
+                conversations and shared experiences not only uplift your mood but also help you cope better with life's
+                challenges.</p>
+
+            <br>
+
+            <p>In addition to relaxation and social interaction, it is essential to prioritize rest and mindfulness.
+                Ensure that you get enough quality sleep each night, as it plays a vital role in both mental clarity and
+                physical recovery. Mindfulness practices, such as being present in the moment and appreciating simple
+                daily experiences, can help reduce anxiety and improve emotional resilience.</p>
+
+            <br>
+
+            <p>By consciously setting aside time each day for relaxation, connection and rest, you can create a
+                healthier, more balanced lifestyle that supports long-term well-being.</p>
+
+            <br>
+
+        </div>
+    </div>
+
+    <div id="balanceDietModal" class="article-modal">
+        <div class="article-modal-content">
+            <span class="close-modal" onclick="closeModal('balanceDietModal')">&times;</span>
+            <h3>Nutrition Tips for a Balanced Diet</h3>
+            <p>Maintaining a balanced diet is essential for supporting overall health and well-being. One of the key
+                nutrition tips is to include a variety of foods from all major food groups, such as fruits,
+                vegetables, whole grains, lean proteins, and healthy fats. This variety ensures that your body
+                receives a wide range of essential nutrients, including vitamins, minerals, and antioxidants that
+                help boost immunity and support daily bodily functions.</p>
+            <br>
+            <p>Portion control is another important aspect of a balanced diet. Eating the right amount of food helps
+                prevent overeating and supports a healthy weight. It is also beneficial to limit the intake of
+                processed foods, added sugars, and excessive salt, as these can contribute to long-term health
+                issues. Instead, focus on fresh, whole foods and try to prepare meals at home whenever possible to
+                better manage ingredients and nutritional value.</p>
+            <br>
+            <p>Staying hydrated and maintaining regular eating habits also play a significant role in proper
+                nutrition. Drinking enough water throughout the day aids digestion and helps the body absorb
+                nutrients effectively. Additionally, eating meals at consistent times and avoiding skipping meals
+                can help maintain stable energy levels and prevent unhealthy snacking. By following these simple
+                nutrition tips, you can build a sustainable and balanced approach to healthy eating.</p>
+
+
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).style.display = "flex";
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            document.querySelectorAll('.article-modal').forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                }
+            });
+        };
+    </script>
+
+</body>
+
+</html>

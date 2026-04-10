@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Messages - MediCare Plus</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background-image: url('../frontend/assets/message-bg.jpg');
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="messages-layout">
+        <div class="chat-sidebar">
+            <div class="chat-sidebar-header">
+                <h3>Conversations</h3>
+                <span id="globalUnreadBadge" class="chat-unread-badge"></span>
+            </div>
+            <div id="chatUsersList" class="chat-users-list"></div>
+        </div>
+
+        <div class="chat-main">
+            <div class="chat-main-header">
+                <h3 id="chatTitle">Select a conversation</h3>
+            </div>
+
+            <div id="chatBox" class="chat-box-modern"></div>
+
+            <div class="chat-input-area">
+                <input id="messageInput" type="text" placeholder="Type your message">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script src="js/script.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+
+    <script>
+        const currentUser = requireLogin();
+        let selectedReceiverId = null;
+        let selectedReceiverName = "";
+
+        function loadChatUsers() {
+            fetch(`../backend/get_chat_users.php?current_user_id=${currentUser.id}&current_role=${currentUser.role}&t=${Date.now()}`)
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("chatUsersList");
+                    list.innerHTML = "";
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        list.innerHTML = "<p class='empty-chat-text'>No users available.</p>";
+                        document.getElementById("globalUnreadBadge").innerText = "";
+                        return;
+                    }
+
+                    let totalUnread = 0;
+
+                    data.forEach(user => {
+                        totalUnread += parseInt(user.unread_count || 0);
+
+                        list.innerHTML += `
+                <div class="chat-user-item ${selectedReceiverId == user.id ? 'active-chat-user' : ''}" onclick="selectChatUser(${user.id}, '${user.name.replace(/'/g, "\\'")}')">
+                    <div>
+                        <strong>${user.name}</strong>
+                        <div class="chat-user-role">${user.role}</div>
+                    </div>
+                    ${parseInt(user.unread_count) > 0 ? `<span class="chat-user-unread">${user.unread_count}</span>` : ""}
+                </div>
+            `;
+                    });
+
+                    document.getElementById("globalUnreadBadge").innerText = totalUnread > 0 ? `${totalUnread}` : "";
+                });
+        }
+
+        function selectChatUser(userId, userName) {
+            selectedReceiverId = userId;
+            selectedReceiverName = userName;
+            document.getElementById("chatTitle").innerText = `Chat with ${userName}`;
+
+            loadMessages(true);
+        }
+
+        function loadMessages(markAsReadAfterLoad = false) {
+            if (!selectedReceiverId) return;
+
+            fetch(`../backend/get_messages.php?user1=${currentUser.id}&user2=${selectedReceiverId}&t=${Date.now()}`)
+                .then(res => res.json())
+                .then(data => {
+                    const chatBox = document.getElementById("chatBox");
+                    chatBox.innerHTML = "";
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        chatBox.innerHTML = "<p class='empty-chat-text'>No messages yet.</p>";
+                        if (markAsReadAfterLoad) {
+                            markRead();
+                        }
+                        return;
+                    }
+
+                    data.forEach(msg => {
+                        const mine = parseInt(msg.sender_id) === parseInt(currentUser.id);
+
+                        chatBox.innerHTML += `
+                <div class="chat-bubble-row ${mine ? 'mine-row' : 'other-row'}">
+                    <div class="chat-bubble ${mine ? 'mine' : 'other'}">
+                        <div class="chat-message-text">${msg.message}</div>
+                        <div class="chat-message-time">${msg.sent_at}</div>
+                    </div>
+                </div>
+            `;
+                    });
+
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
+                    if (markAsReadAfterLoad) {
+                        markRead();
+                    }
+                });
+        }
+
+        function sendMessage() {
+            if (!selectedReceiverId) return;
+
+            const messageInput = document.getElementById("messageInput");
+            const message = messageInput.value.trim();
+
+            if (message === "") return;
+
+            postForm("../backend/send_message.php", {
+                sender_id: currentUser.id,
+                receiver_id: selectedReceiverId,
+                message: message
+            }).then(response => {
+                try {
+                    const data = JSON.parse(response);
+                    if (data.status === "success") {
+                        messageInput.value = "";
+                        loadMessages(false);
+                        loadChatUsers();
+                    }
+                } catch (e) { }
+            });
+        }
+
+        function markRead() {
+            if (!selectedReceiverId) return;
+
+            postForm("../backend/mark_read.php", {
+                sender_id: selectedReceiverId,
+                receiver_id: currentUser.id
+            }).then(() => {
+                loadChatUsers();
+            });
+        }
+
+        document.getElementById("messageInput").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        loadChatUsers();
+
+        setInterval(() => {
+            if (selectedReceiverId) {
+                loadMessages(false);
+            }
+            loadChatUsers();
+        }, 3000);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - MediCare Plus</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="dashboard">
+        <h2>Admin Dashboard</h2>
+
+        <div class="dashboard-section">
+            <h3>Manage Doctors</h3>
+            <form id="doctorForm">
+                <input type="hidden" id="doctor_profile_id">
+                <input type="hidden" id="doctor_user_id">
+                <input id="doctor_name" placeholder="Doctor Name" required>
+                <input id="doctor_email" type="email" placeholder="Doctor Email" required>
+                <input id="doctor_password" placeholder="Password (only for add)">
+                <input id="doctor_specialization" placeholder="Specialization" required>
+                <input id="doctor_experience" type="number" placeholder="Experience" required>
+                <input id="doctor_fee" type="number" placeholder="Fee" required>
+                <input id="doctor_availability" placeholder="Availability" required>
+                <button type="submit">Save Doctor</button>
+            </form>
+            <p id="doctorMessage" class="notice"></p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Specialization</th>
+                            <th>Experience</th>
+                            <th>Fee</th>
+                            <th>Availability</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="doctorTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h3>Manage Patients</h3>
+            <form id="patientForm">
+                <input type="hidden" id="patient_id">
+                <input id="patient_name" placeholder="Patient Name" required>
+                <input id="patient_email" type="email" placeholder="Patient Email" required>
+                <input id="patient_password" placeholder="Password (only for add)">
+                <button type="submit">Save Patient</button>
+            </form>
+            <p id="patientMessage" class="notice"></p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h3>Manage Services</h3>
+            <form id="serviceForm" enctype="multipart/form-data">
+                <input type="hidden" id="service_id">
+                <input id="service_name" placeholder="Service Name" required>
+                <textarea id="service_description" placeholder="Service Description" rows="4" required></textarea>
+                <input type="file" id="service_image" accept="image/*">
+                <button type="submit">Save Service</button>
+            </form>
+            <p id="serviceMessage" class="notice"></p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="serviceTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script src="js/script.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script>
+        requireRole("admin");
+
+        function clearDoctorForm() {
+            document.getElementById("doctor_profile_id").value = "";
+            document.getElementById("doctor_user_id").value = "";
+            document.getElementById("doctor_name").value = "";
+            document.getElementById("doctor_email").value = "";
+            document.getElementById("doctor_password").value = "";
+            document.getElementById("doctor_specialization").value = "";
+            document.getElementById("doctor_experience").value = "";
+            document.getElementById("doctor_fee").value = "";
+            document.getElementById("doctor_availability").value = "";
+        }
+
+        function loadDoctorsAdmin() {
+            fetch("../backend/admin_get_doctors.php")
+                .then(res => res.json())
+                .then(data => {
+                    const body = document.getElementById("doctorTableBody");
+                    body.innerHTML = "";
+                    data.forEach(doc => {
+                        body.innerHTML += `
+                <tr>
+                    <td>${doc.name}</td>
+                    <td>${doc.email}</td>
+                    <td>${doc.specialization}</td>
+                    <td>${doc.experience}</td>
+                    <td>${doc.fee}</td>
+                    <td>${doc.availability}</td>
+                    <td>
+                        <button class="inline-btn edit-btn" onclick='editDoctor(${JSON.stringify(doc)})'>Edit</button>
+                        <button class="inline-btn delete-btn" onclick="deleteDoctor(${doc.user_id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+                    });
+                });
+        }
+
+        function editDoctor(doc) {
+            document.getElementById("doctor_profile_id").value = doc.doctor_profile_id;
+            document.getElementById("doctor_user_id").value = doc.user_id;
+            document.getElementById("doctor_name").value = doc.name;
+            document.getElementById("doctor_email").value = doc.email;
+            document.getElementById("doctor_specialization").value = doc.specialization;
+            document.getElementById("doctor_experience").value = doc.experience;
+            document.getElementById("doctor_fee").value = doc.fee;
+            document.getElementById("doctor_availability").value = doc.availability;
+        }
+
+        function deleteDoctor(userId) {
+            if (!confirm("Delete this doctor?")) return;
+            postForm("../backend/admin_delete_doctor.php", { user_id: userId })
+                .then(msg => {
+                    document.getElementById("doctorMessage").innerText = msg;
+                    loadDoctorsAdmin();
+                    clearDoctorForm();
+                });
+        }
+
+        document.getElementById("doctorForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const doctor_profile_id = document.getElementById("doctor_profile_id").value;
+            const url = doctor_profile_id ? "../backend/admin_update_doctor.php" : "../backend/admin_add_doctor.php";
+
+            const payload = {
+                doctor_profile_id: doctor_profile_id,
+                user_id: document.getElementById("doctor_user_id").value,
+                name: document.getElementById("doctor_name").value,
+                email: document.getElementById("doctor_email").value,
+                password: document.getElementById("doctor_password").value,
+                specialization: document.getElementById("doctor_specialization").value,
+                experience: document.getElementById("doctor_experience").value,
+                fee: document.getElementById("doctor_fee").value,
+                availability: document.getElementById("doctor_availability").value
+            };
+
+            postForm(url, payload).then(msg => {
+                document.getElementById("doctorMessage").innerText = msg;
+                loadDoctorsAdmin();
+                clearDoctorForm();
+            });
+        });
+
+        function clearPatientForm() {
+            document.getElementById("patient_id").value = "";
+            document.getElementById("patient_name").value = "";
+            document.getElementById("patient_email").value = "";
+            document.getElementById("patient_password").value = "";
+        }
+
+        function loadPatientsAdmin() {
+            fetch("../backend/admin_get_patients.php")
+                .then(res => res.json())
+                .then(data => {
+                    const body = document.getElementById("patientTableBody");
+                    body.innerHTML = "";
+                    data.forEach(patient => {
+                        body.innerHTML += `
+                <tr>
+                    <td>${patient.name}</td>
+                    <td>${patient.email}</td>
+                    <td>
+                        <button class="inline-btn edit-btn" onclick='editPatient(${JSON.stringify(patient)})'>Edit</button>
+                        <button class="inline-btn delete-btn" onclick="deletePatient(${patient.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+                    });
+                });
+        }
+
+        function editPatient(patient) {
+            document.getElementById("patient_id").value = patient.id;
+            document.getElementById("patient_name").value = patient.name;
+            document.getElementById("patient_email").value = patient.email;
+        }
+
+        function deletePatient(id) {
+            if (!confirm("Delete this patient?")) return;
+            postForm("../backend/admin_delete_patient.php", { id: id })
+                .then(msg => {
+                    document.getElementById("patientMessage").innerText = msg;
+                    loadPatientsAdmin();
+                    clearPatientForm();
+                });
+        }
+
+        document.getElementById("patientForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const id = document.getElementById("patient_id").value;
+            const url = id ? "../backend/admin_update_patient.php" : "../backend/admin_add_patient.php";
+
+            const payload = {
+                id: id,
+                name: document.getElementById("patient_name").value,
+                email: document.getElementById("patient_email").value,
+                password: document.getElementById("patient_password").value
+            };
+
+            postForm(url, payload).then(msg => {
+                document.getElementById("patientMessage").innerText = msg;
+                loadPatientsAdmin();
+                clearPatientForm();
+            });
+        });
+
+        function clearServiceForm() {
+            document.getElementById("service_id").value = "";
+            document.getElementById("service_name").value = "";
+            document.getElementById("service_description").value = "";
+            document.getElementById("service_image").value = "";
+        }
+
+        function loadServicesAdmin() {
+            fetch("../backend/admin_get_services.php")
+                .then(res => res.json())
+                .then(data => {
+                    const body = document.getElementById("serviceTableBody");
+                    body.innerHTML = "";
+                    data.forEach(service => {
+                        const imageSrc = service.image ? `../backend/${service.image}` : "assets/default-service.jpg";
+
+                        body.innerHTML += `
+                <tr>
+                    <td><img src="${imageSrc}" alt="${service.name}" width="80" height="60" style="object-fit:cover;border-radius:6px;"></td>
+                    <td>${service.name}</td>
+                    <td>${service.description}</td>
+                    <td>
+                        <button class="inline-btn edit-btn" onclick='editService(${JSON.stringify(service)})'>Edit</button>
+                        <button class="inline-btn delete-btn" onclick="deleteService(${service.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+                    });
+                });
+        }
+
+        function editService(service) {
+            document.getElementById("service_id").value = service.id;
+            document.getElementById("service_name").value = service.name;
+            document.getElementById("service_description").value = service.description;
+        }
+
+        function deleteService(id) {
+            if (!confirm("Delete this service?")) return;
+            postForm("../backend/admin_delete_service.php", { id: id })
+                .then(msg => {
+                    document.getElementById("serviceMessage").innerText = msg;
+                    loadServicesAdmin();
+                    clearServiceForm();
+                });
+        }
+
+        document.getElementById("serviceForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const id = document.getElementById("service_id").value;
+            const url = id ? "../backend/admin_update_service.php" : "../backend/admin_add_service.php";
+
+            const formData = new FormData();
+            formData.append("id", document.getElementById("service_id").value);
+            formData.append("name", document.getElementById("service_name").value);
+            formData.append("description", document.getElementById("service_description").value);
+
+            const imageFile = document.getElementById("service_image").files[0];
+            if (imageFile) {
+                formData.append("image", imageFile);
+            }
+
+            fetch(url, {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.text())
+                .then(msg => {
+                    document.getElementById("serviceMessage").innerText = msg;
+                    loadServicesAdmin();
+                    clearServiceForm();
+                });
+        });
+
+        loadDoctorsAdmin();
+        loadPatientsAdmin();
+        loadServicesAdmin();
+    </script>
+</body>
+
+</html>

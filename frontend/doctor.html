@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Dashboard - MediCare Plus</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="dashboard">
+        <h2>Doctor Dashboard</h2>
+
+        <div class="dashboard-section">
+            <h3>My Appointments</h3>
+            <div id="appointments" class="dashboard-list"></div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script src="js/script.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script>
+        const doctorUser = requireRole("doctor");
+
+        fetch(`../backend/get_appointments.php?doctor_id=${doctorUser.id}`)
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("appointments");
+                container.innerHTML = "";
+
+                if (data.length === 0) {
+                    container.innerHTML = "<p>No appointments found.</p>";
+                    return;
+                }
+
+                data.forEach(app => {
+                    container.innerHTML += `<p>${app.patient_name} - ${app.date} at ${app.time}</p>`;
+                });
+            });
+    </script>
+</body>
+
+</html>

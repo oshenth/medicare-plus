@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Dashboard - MediCare Plus</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="main-content">
+        <div class="dashboard">
+            <h2>Patient Dashboard</h2>
+
+            <div class="dashboard-section">
+                <h3>My Appointments</h3>
+                <div id="appointments" class="dashboard-list"></div>
+            </div>
+        </div>
+
+        <div id="footer-container"></div>
+
+        <div id="reviewModal" class="custom-modal">
+            <div class="custom-modal-content">
+                <span class="close-popup" onclick="closeReviewModal()">&times;</span>
+                <h3>Rate Doctor</h3>
+
+                <form id="reviewForm">
+                    <input type="hidden" id="review_appointment_id">
+                    <input type="hidden" id="review_doctor_id">
+
+                    <label for="review_rating">Rating</label>
+                    <select id="review_rating" required>
+                        <option value="">Select Rating</option>
+                        <option value="5">5 - Excellent</option>
+                        <option value="4">4 - Very Good</option>
+                        <option value="3">3 - Good</option>
+                        <option value="2">2 - Fair</option>
+                        <option value="1">1 - Poor</option>
+                    </select>
+
+                    <label for="review_comment">Comment</label>
+                    <textarea id="review_comment" rows="5" placeholder="Write your feedback"></textarea>
+
+                    <button type="submit">Submit Feedback</button>
+                </form>
+
+                <p id="reviewMessage" class="notice"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script>
+        const patientUser = requireRole("patient");
+
+        function loadAppointments() {
+            fetch(`../backend/get_patient_appointments.php?patient_id=${patientUser.id}`)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById("appointments");
+                    container.innerHTML = "";
+
+                    if (data.length === 0) {
+                        container.innerHTML = "<p>No appointments found.</p>";
+                        return;
+                    }
+
+                    data.forEach(app => {
+                        const appDate = new Date(app.date);
+                        const today = new Date();
+                        const isPastOrToday = appDate <= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+                        container.innerHTML += `
+                <div class="patient-appointment-card">
+                    <p><strong>Doctor:</strong> ${app.doctor_name}</p>
+                    <p><strong>Date:</strong> ${app.date}</p>
+                    <p><strong>Time:</strong> ${app.time}</p>
+                    ${isPastOrToday && parseInt(app.has_review) === 0
+                                ? `<button class="small-btn" onclick="openReviewModal(${app.id}, ${app.doctor_id})">Leave Feedback</button>`
+                                : parseInt(app.has_review) === 1
+                                    ? `<span class="feedback-done">Feedback Submitted</span>`
+                                    : `<span class="feedback-pending">Feedback available after appointment date</span>`
+                            }
+                </div>
+            `;
+                    });
+                });
+        }
+
+        function openReviewModal(appointmentId, doctorId) {
+            document.getElementById("review_appointment_id").value = appointmentId;
+            document.getElementById("review_doctor_id").value = doctorId;
+            document.getElementById("review_rating").value = "";
+            document.getElementById("review_comment").value = "";
+            document.getElementById("reviewMessage").innerText = "";
+            document.getElementById("reviewModal").style.display = "flex";
+        }
+
+        function closeReviewModal() {
+            document.getElementById("reviewModal").style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById("reviewModal");
+            if (event.target === modal) {
+                closeReviewModal();
+            }
+        };
+
+        document.getElementById("reviewForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new URLSearchParams();
+            formData.append("appointment_id", document.getElementById("review_appointment_id").value);
+            formData.append("patient_id", patientUser.id);
+            formData.append("doctor_id", document.getElementById("review_doctor_id").value);
+            formData.append("rating", document.getElementById("review_rating").value);
+            formData.append("comment", document.getElementById("review_comment").value);
+
+            fetch("../backend/submit_review.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: formData.toString()
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("reviewMessage").innerText = data.message;
+                        setTimeout(() => {
+                            closeReviewModal();
+                            loadAppointments();
+                        }, 1000);
+                    } else {
+                        document.getElementById("reviewMessage").innerText = data.message;
+                    }
+                });
+        });
+
+        loadAppointments();
+    </script>
+</body>
+
+</html>

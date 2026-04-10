@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>MediCare Plus</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .hero-content h1 {
+            font-size: 80px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <section class="hero hero-image-section full-screen-hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <h1>Your Health, Our Priority</h1>
+                <p>Access quality healthcare services with our network of experienced doctors and modern facilities.</p>
+                <a href="appointment.html" class="primary-btn">Book Appointment</a>
+                <a href="about.html" class="secondary-btn">Learn More &rarr;</a>
+            </div>
+        </div>
+    </section>
+    <br>
+    <div class="page-container">
+        <section>
+            <h2 class="section-title">Featured Services</h2>
+            <div id="featuredServices" class="card-grid"></div>
+        </section>
+
+        <section class="home-articles-section">
+            <div class="section-header-row">
+                <h2 class="section-title">Health Tips & Articles</h2>
+                <a href="health-tips.html" class="small-btn">View All Articles</a>
+            </div>
+
+            <div class="article-grid">
+                <div class="article-card">
+                    <img src="assets/article1.jpg" alt="Healthy lifestyle">
+                    <div class="article-content">
+                        <h3>5 Daily Habits for a Healthier Lifestyle</h3>
+                        <p>Discover simple daily habits that can improve your physical and mental well-being.</p>
+                    </div>
+                </div>
+
+                <div class="article-card">
+                    <img src="assets/article2.jpg" alt="Heart health">
+                    <div class="article-content">
+                        <h3>How to Take Care of Your Heart</h3>
+                        <p>Learn the basics of heart care through proper diet, exercise, and regular checkups.</p>
+                    </div>
+                </div>
+
+                <div class="article-card">
+                    <img src="assets/article3.jpg" alt="Child health">
+                    <div class="article-content">
+                        <h3>Tips for Keeping Children Healthy</h3>
+                        <p>Important guidance for parents to maintain their children's health and immunity.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script src="js/script.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script>
+        function getServiceImage(service) {
+            if (service.image && service.image.trim() !== "") {
+                return `../backend/${service.image}`;
+            }
+
+            return "assets/default-service.jpg";
+        }
+
+        function imageErrorFallback(img) {
+            img.onerror = null;
+            img.src = "assets/default-service.jpg";
+        }
+
+        fetch("../backend/get_services.php")
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("featuredServices");
+                container.innerHTML = "";
+                data.slice(0, 3).forEach(service => {
+                    container.innerHTML += `
+            <div class="service-card">
+                <img 
+                    src="${getServiceImage(service)}" 
+                    alt="${service.name}" 
+                    loading="lazy"
+                    onerror="imageErrorFallback(this)"
+                >
+                <div class="service-card-content">
+                    <h3>${service.name}</h3>
+                    <p>${service.description}</p>
+                </div>
+            </div>
+        `;
+                });
+            });
+    </script>
+</body>
+
+</html>

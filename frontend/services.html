@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Services - MediCare Plus</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="page-container">
+        <h2 class="section-title">Our Services</h2>
+        <div id="servicesList" class="card-grid"></div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script src="js/script.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script>
+        function getServiceImage(service) {
+            if (service.image && service.image.trim() !== "") {
+                return `../backend/${service.image}`;
+            }
+
+            return "assets/default-service.jpg";
+        }
+
+        function imageErrorFallback(img) {
+            img.onerror = null;
+            img.src = "assets/default-service.jpg";
+        }
+
+        fetch("../backend/get_services.php")
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("servicesList");
+                container.innerHTML = "";
+
+                data.forEach(service => {
+                    container.innerHTML += `
+            <div class="service-card">
+                <img 
+                    src="${getServiceImage(service)}" 
+                    alt="${service.name}" 
+                    loading="lazy"
+                    onerror="imageErrorFallback(this)"
+                >
+                <div class="service-card-content">
+                    <h3>${service.name}</h3>
+                    <p>${service.description}</p>
+                </div>
+            </div>
+        `;
+                });
+            });
+    </script>
+</body>
+
+</html>

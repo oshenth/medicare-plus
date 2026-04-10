@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Doctors - MediCare Plus</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="page-container">
+        <h2 class="section-title">Find Doctors</h2>
+
+        <div class="filter-row">
+            <input type="text" id="search" placeholder="Search by doctor name">
+            <select id="specialization">
+                <option value="">All Specializations</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Radiology">Radiology</option>
+                <option value="Emergency Care">Emergency Care</option>
+                <option value="Mental Health">Mental Health</option>
+            </select>
+            <button onclick="loadDoctors()">Search</button>
+        </div>
+
+        <div id="doctorList" class="card-grid"></div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <div id="popupModal" class="custom-modal">
+        <div class="custom-modal-content">
+            <span class="close-popup" onclick="closePopup()">&times;</span>
+            <h3 id="popupTitle"></h3>
+            <p id="popupMessage"></p>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+
+    <script>
+        function showPopup(title, message) {
+            document.getElementById("popupTitle").innerText = title;
+            document.getElementById("popupMessage").innerText = message;
+            document.getElementById("popupModal").style.display = "flex";
+        }
+
+        function closePopup() {
+            document.getElementById("popupModal").style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById("popupModal");
+            if (event.target === modal) {
+                closePopup();
+            }
+        };
+
+        function handleBooking(doctorId) {
+            const user = getUser();
+
+            if (!user) {
+                showPopup("Login Required", "Please login to book an appointment.");
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 1200);
+                return;
+            }
+
+            if (user.role !== "patient") {
+                showPopup("Access Denied", "Only patients can book appointments.");
+                return;
+            }
+
+            window.location.href = `appointment.html?doctor_id=${doctorId}`;
+        }
+
+        function renderStars(rating) {
+            const rounded = Math.round(rating);
+            let stars = "";
+            for (let i = 1; i <= 5; i++) {
+                stars += i <= rounded ? "&#9733;" : "&#9733;";
+            }
+            return stars;
+        }
+
+        function loadDoctors() {
+            const search = document.getElementById("search").value;
+            const specialization = document.getElementById("specialization").value;
+
+            fetch(`../backend/get_doctors.php?search=${encodeURIComponent(search)}&specialization=${encodeURIComponent(specialization)}`)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById("doctorList");
+                    container.innerHTML = "";
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        container.innerHTML = "<p>No doctors found.</p>";
+                        return;
+                    }
+
+                    data.forEach(doc => {
+                        container.innerHTML += `
+                <div class="doctor-card">
+                    <div class="doctor-image">
+                        <img src="assets/doctor.jpg" alt="${doc.name}">
+                    </div>
+
+                    <div class="doctor-info">
+                        <h3>${doc.name}</h3>
+                        <p class="specialization">${doc.specialization}</p>
+
+                        <div class="doctor-rating">
+                            <span class="stars">${renderStars(doc.average_rating)}</span>
+                            <span class="rating-text">${doc.average_rating}/5 (${doc.total_reviews} reviews)</span>
+                        </div>
+
+                        <div class="doctor-meta">
+                            <span> &#9764; ${doc.experience} yrs</span>
+                            <span> Rs. ${doc.fee}</span>
+                        </div>
+
+                        <p><strong>Availability:</strong> ${doc.availability}</p>
+
+                        <button class="book-btn" onclick="handleBooking(${doc.user_id})">
+                            Book Appointment
+                        </button>
+                    </div>
+                </div>
+            `;
+                    });
+                })
+                .catch(() => {
+                    document.getElementById("doctorList").innerHTML = "<p>Failed to load doctors.</p>";
+                });
+        }
+
+        loadDoctors();
+    </script>
+
+</body>
+
+</html>

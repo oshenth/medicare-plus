@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Book Appointment - MediCare Plus</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        body {
+            background-image: url('../frontend/assets/message-bg.jpg');
+        }
+    </style>
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="page-container auth-page">
+        <div class="form-card">
+            <h2>Book Appointment</h2>
+
+            <p id="bookingNotice" class="notice"></p>
+
+            <form id="appointmentForm">
+                <input type="hidden" id="patient_id" name="patient_id">
+
+                <label for="doctor_id">Select Doctor</label>
+                <select id="doctor_id" name="doctor_id" required>
+                    <option value="">Loading doctors...</option>
+                </select>
+
+                <label for="date">Select Date</label>
+                <input type="date" id="date" name="date" required>
+
+                <label for="time">Select Time</label>
+                <input type="time" id="time" name="time" required>
+
+                <button type="submit" id="bookBtn">Book Appointment</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <div id="popupModal" class="custom-modal">
+        <div class="custom-modal-content">
+            <span class="close-popup" onclick="closePopup()">&times;</span>
+            <h3 id="popupTitle"></h3>
+            <p id="popupMessage"></p>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script>
+        const currentUser = getUser();
+        const bookingNotice = document.getElementById("bookingNotice");
+        const appointmentForm = document.getElementById("appointmentForm");
+        const patientIdInput = document.getElementById("patient_id");
+        const doctorSelect = document.getElementById("doctor_id");
+        const dateInput = document.getElementById("date");
+
+        function showPopup(title, message) {
+            document.getElementById("popupTitle").innerText = title;
+            document.getElementById("popupMessage").innerText = message;
+            document.getElementById("popupModal").style.display = "flex";
+        }
+
+        function closePopup() {
+            document.getElementById("popupModal").style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById("popupModal");
+            if (event.target === modal) {
+                closePopup();
+            }
+        };
+
+        function disableBooking(message) {
+            bookingNotice.innerText = message;
+            Array.from(appointmentForm.elements).forEach(el => el.disabled = true);
+        }
+
+        function setMinDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, "0");
+            const day = String(today.getDate()).padStart(2, "0");
+            const minDate = `${year}-${month}-${day}`;
+            dateInput.min = minDate;
+        }
+
+        function loadDoctors() {
+            fetch("../backend/get_doctors.php")
+                .then(res => res.json())
+                .then(data => {
+                    doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+
+                    data.forEach(doc => {
+                        doctorSelect.innerHTML += `
+                <option value="${doc.user_id}">
+                    ${doc.name} - ${doc.specialization} - Rs. ${doc.fee}
+                </option>
+            `;
+                    });
+
+                    const params = new URLSearchParams(window.location.search);
+                    const doctorId = params.get("doctor_id");
+                    if (doctorId) {
+                        doctorSelect.value = doctorId;
+                    }
+                });
+        }
+
+        setMinDate();
+
+        if (!currentUser) {
+            disableBooking("Please login to book an appointment.");
+        } else if (currentUser.role !== "patient") {
+            disableBooking("Only patients can book an appointment.");
+        } else {
+            patientIdInput.value = currentUser.id;
+            loadDoctors();
+        }
+
+        appointmentForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            if (!currentUser) {
+                showPopup("Booking Error", "Please login to book an appointment.");
+                return;
+            }
+
+            if (currentUser.role !== "patient") {
+                showPopup("Booking Error", "Only patients can book an appointment.");
+                return;
+            }
+
+            const selectedDate = dateInput.value;
+            const today = new Date();
+            const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+            if (selectedDate < todayString) {
+                showPopup("Booking Error", "Past dates are not allowed. Please select today or a future date.");
+                return;
+            }
+
+            const formData = new URLSearchParams();
+            formData.append("patient_id", patientIdInput.value);
+            formData.append("doctor_id", doctorSelect.value);
+            formData.append("date", selectedDate);
+            formData.append("time", document.getElementById("time").value);
+
+            fetch("../backend/book_appointment.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: formData.toString()
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        showPopup("Booking Successful", data.message);
+                        appointmentForm.reset();
+                        patientIdInput.value = currentUser.id;
+                        setMinDate();
+                        loadDoctors();
+                    } else {
+                        showPopup("Booking Error", data.message);
+                    }
+                })
+                .catch(() => {
+                    showPopup("Booking Error", "Something went wrong while booking the appointment.");
+                });
+        });
+    </script>
+</body>
+
+</html>

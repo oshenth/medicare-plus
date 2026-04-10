@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Us - MediCare Plus</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <section class="page-banner full-screen-banner">
+        <img src="assets/contact.jpg" alt="Contact MediCare Plus">
+        <div class="page-banner-overlay">
+            <h1 style="font-size: 80px;">Contact Us</h1>
+            <p>We are here to help you with appointments, services and general inquiries.</p>
+        </div>
+    </section>
+
+    <div class="page-container">
+        <div class="card-grid contact-grid">
+            <div class="card">
+                <h3>Contact Information</h3>
+                <p><strong>Address:</strong> No. 26/39/5, Anuradhapura, Sri Lanka</p>
+                <p><strong>Phone:</strong> +94 76 496 8115</p>
+                <p><strong>Email:</strong> oshenth@gmail.com</p>
+                <p><strong>Working Hours:</strong> We serve you 24 x 7 x 365</p>
+            </div>
+
+            <div class="card">
+                <h3>Send a Message</h3>
+                <form id="contactForm">
+                    <input name="name" id="name" placeholder="Your Name" required>
+                    <input name="email" id="email" type="email" placeholder="Your Email" required>
+                    <textarea name="message" id="message" placeholder="Your Message" rows="6" required></textarea>
+                    <button type="submit">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script src="js/script.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+
+    <script>
+        function showPopup(title, message) {
+            document.getElementById("popupTitle").innerText = title;
+            document.getElementById("popupMessage").innerText = message;
+            document.getElementById("popupModal").style.display = "flex";
+        }
+
+        function closePopup() {
+            document.getElementById("popupModal").style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById("popupModal");
+            if (event.target === modal) {
+                closePopup();
+            }
+        };
+
+        document.getElementById("contactForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new URLSearchParams();
+            formData.append("name", document.getElementById("name").value);
+            formData.append("email", document.getElementById("email").value);
+            formData.append("message", document.getElementById("message").value);
+
+            fetch("../backend/contact.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: formData.toString()
+            })
+                .then(res => res.text())
+                .then(response => {
+                    showPopup("Success", "Message sent successfully.");
+                    document.getElementById("contactForm").reset();
+                })
+                .catch(() => {
+                    showPopup("Error", "Failed to send message.");
+                });
+        });
+    </script>
+
+    <div id="popupModal" class="custom-modal">
+        <div class="custom-modal-content">
+            <span class="close-popup" onclick="closePopup()">&times;</span>
+            <h3 id="popupTitle"></h3>
+            <p id="popupMessage"></p>
+        </div>
+    </div>
+</body>
+
+</html>
