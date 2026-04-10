@@ -21,31 +21,6 @@ MediCare Plus is a web-based healthcare management system that allows patients, 
 - Database: MySQL  
 - Environment: XAMPP / Apache  
 
-## 📁 Project Structure
-medicare-plus/
-│
-├── frontend/
-│ ├── index.html
-│ ├── login.html
-│ ├── register.html
-│ ├── doctors.html
-│ ├── patient.html
-│ ├── messages.html
-│ ├── css/
-│ ├── js/
-│ └── assets/
-│
-├── backend/
-│ ├── db.php
-│ ├── login.php
-│ ├── register.php
-│ ├── get_doctors.php
-│ ├── book_appointment.php
-│ ├── send_message.php
-│ └── ...
-│
-└── database.sql
-
 ## ⚙️ Setup Instructions
 
 1. Install XAMPP and start Apache & MySQL  
@@ -53,7 +28,6 @@ medicare-plus/
 3. Import `database.sql` into phpMyAdmin  
 4. Update `backend/db.php` with your DB credentials  
 5. Open in browser:http://localhost/medicare-plus/frontend/
-
 
 ## 👤 User Roles
 
